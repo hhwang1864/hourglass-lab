@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="An illustrated plan for building a wooden 3D hourglass: measurements, sand, signed distances and GPU simulation."
+    />
+    <title>Hourglass Lab — A little world, measured.</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#intro">Skip to notebook</a>
+    <header class="topbar">
+      <a class="brand" href="#"
+        ><span class="mark">⌛</span> HOURGLASS LAB
+        <span class="edition">/ FIELD NOTES 001</span></a
+      >
+      <nav aria-label="Main">
+        <a href="#workbench">Concept</a><a href="#math">The mathematics</a
+        ><a href="#build">Build plan</a>
+      </nav>
+      <span class="status"><i></i> PLANNING STAGE</span>
+    </header>
+    <main>
+      <section id="intro" class="intro">
+        <div class="eyebrow">WOOD · GLASS · 50,000 LITTLE EXPERIMENTS</div>
+        <h1>A little world,<br /><em>measured.</em></h1>
+        <div class="intro-bottom">
+          <p>
+            Build a wooden hourglass. Watch the sand fall. Change its dimensions, discover what
+            fits, and find out how far your GPU can go.
+          </p>
+          <a class="text-link" href="#workbench">Start with the shape <span>↘</span></a>
+        </div>
+      </section>
+      <section id="workbench" class="workbench" aria-labelledby="workbench-title">
+        <div class="drawing-panel">
+          <div class="panel-heading">
+            <span class="eyebrow">01 / THE PROPOSED OBJECT</span
+            ><span class="pill">CONCEPT DRAWING</span>
+          </div>
+          <h2 id="workbench-title">Give time a shape.</h2>
+          <p class="drawing-description">
+            A wooden frame. Two glass bulbs. A measured stream of sand.
+          </p>
+          <svg
+            viewBox="0 0 700 530"
+            role="img"
+            aria-labelledby="sketch-title sketch-desc"
+            class="concept-svg"
+          >
+            <title id="sketch-title">Proposed wooden hourglass with dimension annotations</title>
+            <desc id="sketch-desc">
+              Static concept drawing. Interior height 160 mm, maximum radius 25 mm, neck diameter 6
+              mm, glass thickness 2 mm. Schematic, not to scale.
+            </desc>
+            <defs>
+              <linearGradient id="wood-grad">
+                <stop stop-color="#4d3426" />
+                <stop offset=".24" stop-color="#96704c" />
+                <stop offset=".5" stop-color="#795338" />
+                <stop offset="1" stop-color="#493323" />
+              </linearGradient>
+              <linearGradient id="glass-grad">
+                <stop stop-color="#c6d7c2" stop-opacity=".5" />
+                <stop offset=".25" stop-color="#fff" stop-opacity=".7" />
+                <stop offset=".65" stop-color="#eef6e9" stop-opacity=".1" />
+                <stop offset="1" stop-color="#aec5b1" stop-opacity=".65" />
+              </linearGradient>
+              <pattern id="sand-grains" width="9" height="8" patternUnits="userSpaceOnUse">
+                <rect width="9" height="8" fill="#cda36a" />
+                <circle cx="2" cy="2" r=".8" fill="#9f7647" />
+                <circle cx="6" cy="6" r=".8" fill="#edd0a1" />
+              </pattern>
+              <clipPath id="glass-clip">
+                <path
+                  d="M330 90 C240 105 222 165 273 212 C301 238 333 247 337 265 C333 283 301 292 273 318 C222 365 240 425 330 440 L370 440 C460 425 478 365 427 318 C399 292 367 283 363 265 C367 247 399 238 427 212 C478 165 460 105 370 90 Z"
+                />
+              </clipPath>
+            </defs>
+            <ellipse cx="350" cy="474" rx="155" ry="16" fill="#647856" opacity=".09" />
+            <g stroke="#bbc6b0" stroke-width=".6" opacity=".5">
+              <path
+                d="M90 120H610 M90 180H610 M90 240H610 M90 300H610 M90 360H610 M90 420H610 M170 60V470 M230 60V470 M290 60V470 M350 60V470 M410 60V470 M470 60V470 M530 60V470"
+              />
+            </g>
+            <g fill="url(#wood-grad)" stroke="#634831">
+              <rect x="204" y="78" width="18" height="374" rx="8" />
+              <rect x="478" y="78" width="18" height="374" rx="8" />
+              <rect x="193" y="62" width="314" height="26" rx="9" />
+              <rect x="193" y="442" width="314" height="26" rx="9" />
+            </g>
+            <g fill="none" stroke="#b29266" opacity=".45">
+              <path
+                d="M208 69H487 M208 76H487 M209 449H490 M209 458H490 M211 102V426 M486 102V426"
+              />
+            </g>
+            <path
+              d="M330 90 C240 105 222 165 273 212 C301 238 333 247 337 265 C333 283 301 292 273 318 C222 365 240 425 330 440 L370 440 C460 425 478 365 427 318 C399 292 367 283 363 265 C367 247 399 238 427 212 C478 165 460 105 370 90 Z"
+              fill="url(#glass-grad)"
+              stroke="#92a68e"
+              stroke-width="2"
+            />
+            <g clip-path="url(#glass-clip)">
+              <path d="M220 164H480L363 265H337Z" fill="url(#sand-grains)" />
+              <path d="M226 438 L350 372 L474 438Z" fill="url(#sand-grains)" />
+              <path
+                d="M347 268L350 369 M353 274L352 361"
+                stroke="#c49554"
+                stroke-width="2"
+                stroke-dasharray="2 6"
+              />
+            </g>
+            <path
+              d="M317 107C253 127 247 162 274 196 M275 335C251 367 267 409 315 424"
+              fill="none"
+              stroke="#fff"
+              stroke-width="5"
+              opacity=".65"
+              stroke-linecap="round"
+            />
+            <g fill="none" stroke="#738669">
+              <path
+                d="M160 90V440 M152 90H169 M152 440H169 M171 90H318 M171 440H318 M350 121H440 M350 116V126 M440 116V126 M366 265H558 M447 340H556"
+              />
+            </g>
+            <g fill="#53634b" font-family="Segoe UI, sans-serif" font-size="11">
+              <text x="141" y="280" transform="rotate(-90 141 280)">H = 160 mm</text>
+              <text x="367" y="111">R = 25 mm</text>
+              <text x="491" y="254">D = 6 mm</text>
+              <text x="490" y="329">t = 2 mm</text>
+              <text x="268" y="500" font-size="10" letter-spacing="2">WALNUT / WARM GOLD SAND</text>
+            </g>
+          </svg>
+          <p class="caption">
+            Static concept illustration. Proportions and sand levels are schematic; mathematical
+            dimensions are specified alongside.
+          </p>
+        </div>
+        <aside class="controls">
+          <div class="control-title"><h3>Starting assumptions</h3></div>
+          <dl class="specification">
+            <dt>Grain count</dt>
+            <dd>50,000</dd>
+            <dt>Stretch target</dt>
+            <dd>500,000</dd>
+            <dt>Interior height H</dt>
+            <dd>160 mm</dd>
+            <dt>Maximum inner radius R</dt>
+            <dd>25 mm</dd>
+            <dt>Neck diameter D</dt>
+            <dd>6 mm</dd>
+            <dt>Grain diameter d</dt>
+            <dd>1 mm</dd>
+            <dt>Glass wall thickness t</dt>
+            <dd>2 mm</dd>
+            <dt>Packing fraction</dt>
+            <dd>0.60</dd>
+            <dt>Grain material density</dt>
+            <dd>2,650 kg/m³</dd>
+            <dt>Glass material density</dt>
+            <dd>2,500 kg/m³</dd>
+          </dl>
+          <p class="caption">
+            Proposed coarse spherical grains. These assumptions are for planning and can change
+            before implementation.
+          </p>
+          <h4 class="future-title">PLANNED CONFIGURATION</h4>
+          <p class="future-copy">
+            Vessel dimensions · grain count and size · sand colour · wood colour · glass thickness,
+            density and optical properties · gravity · simulation speed.
+          </p>
+        </aside>
+        <div class="readouts">
+          <div>
+            <span>Sand mass</span><strong>69.4 g</strong
+            ><small>50k spherical grains, 1 mm diameter</small>
+          </div>
+          <div>
+            <span>Bulk sand volume</span><strong>43.6 mL</strong
+            ><small>Including gaps at 60% packing</small>
+          </div>
+          <div>
+            <span>One bulb capacity</span><strong>84.2 mL</strong
+            ><small>For the profile in topic 02</small>
+          </div>
+          <div>
+            <span>Bulb occupancy</span><strong>51.8%</strong
+            ><small>Bulk volume ÷ one bulb capacity</small>
+          </div>
+        </div>
+        <div class="fit-message">
+          Worked example: 50k grains fit in one bulb. At the same grain size, 500k require 436.3 mL
+          and exceed this bulb's capacity. Increase the vessel dimensions or choose smaller grains.
+        </div>
+      </section>
+      <section class="section" id="idea">
+        <div class="section-number">02 / THE IDEA</div>
+        <div class="section-body">
+          <h2>A small object. A lot to learn.</h2>
+          <p class="lead">
+            Our first playable version: a wooden frame, a clear glass vessel, 50,000 colliding
+            grains, an orbit camera, and a satisfying flip.
+          </p>
+          <div class="three-columns">
+            <article>
+              <span class="tiny-number">01</span>
+              <h3>Make it tangible</h3>
+              <p>
+                Use millimetres on the controls and metres in the physics. Show rulers, axes, a
+                cutaway, and the grain-to-neck size ratio. Change the sand and wood colours.
+              </p>
+            </article>
+            <article>
+              <span class="tiny-number">02</span>
+              <h3>Make it playful</h3>
+              <p>
+                Flip gravity, try lunar gravity, slow time, colour grains by speed, or shake a jam
+                loose. Add sound and a gentle camera orbit after the sand behaves.
+              </p>
+            </article>
+            <article>
+              <span class="tiny-number">03</span>
+              <h3>Make it measurable</h3>
+              <p>
+                Count grains crossing the neck. Watch mass stay constant. Compare frame time at 50k,
+                100k, 250k and 500k. Keep render quality and simulation settings visible.
+              </p>
+            </article>
+          </div>
+          <aside class="note">
+            <b>Platform decision stays open.</b> This deliverable is an HTML/CSS planning document.
+            The simulation will not use a JavaScript/TypeScript application stack. A native GPU
+            application is one candidate; a compiled browser target is another, subject to checking
+            its browser integration requirements. Choose the language and platform after reviewing
+            the mathematics. Your RTX 3060 Ti has 8 GB of VRAM; 500k interacting grains remains a
+            measured stretch target.
+          </aside>
+        </div>
+      </section>
+      <section class="section" id="math">
+        <div class="section-number">03 / THE MATHEMATICS</div>
+        <div class="section-body">
+          <h2>Understand it.<br />Then simulate it.</h2>
+          <p class="lead">
+            Read these in order. Every equation has a job in the hourglass. Expand a topic when you
+            want the implementation detail.
+          </p>
+          <details class="lesson" open>
+            <summary>
+              <span>01</span>
+              <div>Coordinates & scale<small>How a dimension becomes a 3D object</small></div>
+              <b>+</b>
+            </summary>
+            <div class="lesson-body">
+              <p>
+                Put the neck at the origin. Use a right-handed coordinate system with +Y up; X and Z
+                span the horizontal plane. Store positions in metres, time in seconds, mass in
+                kilograms. Convert only at the UI boundary.
+              </p>
+              <div class="formula">
+                x<sub>m</sub> = x<sub>mm</sub> / 1000 &nbsp;&nbsp; · &nbsp;&nbsp; g = (0, −9.81, 0)
+                m/s²
+              </div>
+              <p>
+                A grain is a sphere at <i>p = (x, y, z)</i> with radius <i>r = d/2</i>. A camera
+                changes how we see it; it does not change its physical size. A mesh point moves from
+                model space through world, view and projection matrices:
+              </p>
+              <div class="formula">
+                p<sub>clip</sub> = P · V · M · (x, y, z, 1)<sup>T</sup> &nbsp; → &nbsp; p<sub
+                  >NDC</sub
+                >
+                = p<sub>clip,xyz</sub> / p<sub>clip,w</sub>
+              </div>
+              <p>
+                <i>M</i> places the object, <i>V</i> places the viewer, and <i>P</i> gives
+                perspective. If all lengths grow by <i>s</i>, area grows by <i>s²</i> and volume and
+                mass by <i>s³</i>. A vessel twice as large holds eight times as much at the same
+                packing fraction.
+              </p>
+              <p class="try">
+                Try it: halve the grain diameter. Each grain now occupies ⅛ of its original volume.
+              </p>
+            </div>
+          </details>
+          <details class="lesson">
+            <summary>
+              <span>02</span>
+              <div>
+                A shape we can measure<small>Revolve a profile, integrate its volume</small>
+              </div>
+              <b>+</b>
+            </summary>
+            <div class="lesson-body">
+              <p>
+                Our planning profile has height <i>H</i>, maximum inner radius <i>R</i>, and neck
+                radius <i>a = D/2</i>. For −H/2 ≤ y ≤ H/2, define <i>b = R − a</i>:
+              </p>
+              <div class="formula">
+                r<sub>wall</sub>(y) = a + b sin(2π|y| / H)<br />S(y, θ) = (r<sub>wall</sub>(y) cos
+                θ, y, r<sub>wall</sub>(y) sin θ), &nbsp; 0 ≤ θ &lt; 2π
+              </div>
+              <p>
+                This revolves a 2D curve around Y. The two end openings are closed with small disks
+                of radius <i>a</i>. It is a measurable starting shape with a cusp at the neck; the
+                final glass should use a rounded, validated profile.
+              </p>
+              <div class="formula">
+                V<sub>bulb</sub> = π ∫<sub>0</sub><sup>H/2</sup> r<sub>wall</sub>(y)² dy<br />=
+                (πH/2) [a² + 4ab/π + b²/2]
+              </div>
+              <p>
+                The integral adds the volumes of very thin circular slices. Expanding the square
+                uses the mean of sin over [0, π], which is 2/π, and the mean of sin², which is 1/2.
+                This formula gives the worked-example capacity above.
+              </p>
+              <p>
+                Wall thickness <i>t</i> is a normal offset from the interior surface, not simply an
+                increase in horizontal radius. For a thin, smooth shell,
+                <i>V<sub>glass</sub> ≈ A<sub>inner</sub>t</i> and
+                <i>m<sub>glass</sub> = ρ<sub>glass</sub>V<sub>glass</sub></i
+                >. Compute the actual inner/outer mesh volumes once the neck is rounded; thin-shell
+                estimates lose accuracy at sharp curves.
+              </p>
+            </div>
+          </details>
+          <details class="lesson">
+            <summary>
+              <span>03</span>
+              <div>
+                How much sand is 50,000 grains?<small>Count, diameter, mass and packing</small>
+              </div>
+              <b>+</b>
+            </summary>
+            <div class="lesson-body">
+              <div class="formula">
+                V<sub>grain</sub> = πd³ / 6 &nbsp; · &nbsp; m<sub>grain</sub> =
+                ρ<sub>solid</sub>V<sub>grain</sub><br />M = Nm<sub>grain</sub> &nbsp; · &nbsp; V<sub
+                  >bulk</sub
+                >
+                = NV<sub>grain</sub> / φ &nbsp; · &nbsp; ρ<sub>bulk</sub> = φρ<sub>solid</sub>
+              </div>
+              <p>
+                <i>N</i> is grain count. <i>φ</i> is the fraction of a sand pile occupied by solid
+                material; the rest is empty space. We assume <i>φ = 0.60</i> and
+                <i>ρ<sub>solid</sub> = 2650 kg/m³</i> as editable starting values. Grain shape,
+                friction and preparation change packing.
+              </p>
+              <p>
+                At the default 1 mm diameter, 50,000 spheres have approximately
+                <b>69.4 g mass and 43.6 mL bulk volume</b>. Ten times as many grains means ten times
+                the mass and volume. The spherical model omits irregular real grain shapes.
+              </p>
+              <p>
+                <b>Two different experiments:</b> hold diameter fixed to add more sand; or hold
+                total volume fixed and use <i>d ∝ N<sup>−1/3</sup></i> to increase resolution. The
+                worked example uses the first mode. The future benchmark should offer both and
+                record which was used.
+              </p>
+              <p class="try">
+                For the same bulk volume at 500k, reduce a 1 mm grain to about 0.464 mm. This also
+                changes neck-to-grain ratio and flow behaviour.
+              </p>
+            </div>
+          </details>
+          <details class="lesson" id="sdf-lesson">
+            <summary>
+              <span>04</span>
+              <div>
+                Signed distance fields<small>Where is the wall, and how far away is it?</small>
+              </div>
+              <b>+</b>
+            </summary>
+            <div class="lesson-body">
+              <p>
+                A signed distance field <i>φ(p)</i> is the shortest distance to a surface, with a
+                sign. Our convention is
+                <b>negative inside the empty vessel, zero on its inner wall, positive outside</b>.
+                Here φ denotes distance; the packing fraction in topic 03 is a different,
+                dimensionless quantity.
+              </p>
+              <div class="formula">
+                φ(p) = sign(p) min<sub>q ∈ ∂Ω</sub> ‖p − q‖<br />Sphere example:
+                φ<sub>sphere</sub>(p) = ‖p − c‖ − R
+              </div>
+              <p>
+                For the hourglass, reduce 3D to the meridian point <i>q = (√(x²+z²), y)</i>. Sample
+                the wall profile as line segments and include the top and bottom cap segments. For
+                each segment from <i>A</i> to <i>B</i>:
+              </p>
+              <div class="formula">
+                u = clamp(((q − A) · (B − A)) / ‖B − A‖², 0, 1)<br />q<sub>closest</sub> = A + u(B −
+                A)<br />distance = min<sub>segments</sub> ‖q − q<sub>closest</sub>‖
+              </div>
+              <p>
+                Determine the sign with an inside test against that same sampled profile. This gives
+                the exact distance to the piecewise-linear surface of revolution, approximating the
+                intended smooth vessel. Do not count the revolution axis as a wall. Increase samples
+                until distance error is small relative to a grain radius.
+              </p>
+              <aside class="note">
+                <b>The tempting shortcut:</b> <i>f(p) = √(x²+z²) − r<sub>wall</sub>(y)</i> describes
+                the side surface but is not a Euclidean SDF. Locally,
+                <i>f / √(1 + r′<sub>wall</sub>(y)²)</i> improves the distance estimate; it is still
+                approximate and omits caps. Do not use <i>f</i> directly as an exact push-out
+                distance.
+              </aside>
+              <aside class="note">
+                <b>Worked collision:</b> a grain of radius 0.5 mm whose centre has φ = −0.2 mm
+                overlaps the wall by 0.3 mm. Move it 0.3 mm opposite the outward normal, then
+                re-evaluate the distance.
+              </aside>
+              <p>
+                Where the distance field is differentiable, the unit outward normal is
+                <i>n = ∇φ / ‖∇φ‖</i>. Estimate each derivative with central differences, e.g.
+                <i>∂φ/∂x ≈ [φ(p+εe<sub>x</sub>) − φ(p−εe<sub>x</sub>)]/(2ε)</i>. Choose ε relative
+                to the geometry resolution; guard near-zero gradients and nonunique nearest points.
+              </p>
+              <div class="formula">
+                A grain fits if φ(p) + r ≤ 0.<br />If φ(p) + r &gt; 0: &nbsp; p ← p − [φ(p) + r]n
+              </div>
+              <p>
+                For curved walls, iterate and re-evaluate after correction. A sampled 3D texture is
+                faster than scanning every segment per particle, but adds interpolation error and
+                memory. Use the segment method as the correctness reference before optimising.
+              </p>
+            </div>
+          </details>
+          <details class="lesson">
+            <summary>
+              <span>05</span>
+              <div>
+                Gravity, time & contacts<small>Turn positions into falling and piling</small>
+              </div>
+              <b>+</b>
+            </summary>
+            <div class="lesson-body">
+              <p>
+                Use a fixed simulation timestep <i>h</i> with substeps, independent of display
+                refresh rate. A starting experiment is 1/120 s, then split further as needed. First
+                predict motion:
+              </p>
+              <div class="formula">v* = v + gh &nbsp; · &nbsp; p* = p + v*h</div>
+              <p>
+                Project overlapping grains apart. For centres <i>pᵢ, pⱼ</i>, define
+                <i>C = ‖pᵢ − pⱼ‖ − (rᵢ + rⱼ)</i>, unit direction <i>n = (pᵢ − pⱼ)/‖pᵢ − pⱼ‖</i>, and
+                inverse masses <i>wᵢ = 1/mᵢ</i>. If <i>C &lt; 0</i>:
+              </p>
+              <div class="formula">
+                Δpᵢ = −[wᵢ/(wᵢ+wⱼ)] Cn<br />Δpⱼ = +[wⱼ/(wᵢ+wⱼ)] Cn<br />v<sub>new</sub> = (p<sub
+                  >corrected</sub
+                >
+                − p<sub>old</sub>) / h
+              </div>
+              <p>
+                Iterate grain contacts and wall contacts together. Handle coincident centres with a
+                deterministic fallback direction. Use low restitution and friction so the grains
+                settle. Friction limits tangential impulse: <i>‖J<sub>t</sub>‖ ≤ μJ<sub>n</sub></i
+                >. A rough pile estimate is <i>tan θ ≈ μ</i>; real repose angles also depend on
+                shape, rolling and solver details.
+              </p>
+              <p>
+                A conservative travel heuristic is <i>‖v‖h &lt; r/2</i>; it is not a guarantee
+                against tunnelling. Fast motion and narrow necks may need swept contacts. Start with
+                a small reference simulation and test leaking, piling and repeated flips.
+                <a href="https://matthias-research.github.io/pages/publications/posBasedDyn.pdf"
+                  >Position Based Dynamics paper ↗</a
+                >
+              </p>
+            </div>
+          </details>
+          <details class="lesson">
+            <summary>
+              <span>06</span>
+              <div>When stiffness needs a meaning<small>XPBD as a later solver upgrade</small></div>
+              <b>+</b>
+            </summary>
+            <div class="lesson-body">
+              <p>
+                Extended Position Based Dynamics introduces compliance <i>α</i> (inverse stiffness)
+                and an accumulated constraint multiplier <i>λ</i>. For constraint <i>C</i>:
+              </p>
+              <div class="formula">
+                α̃ = α/h²<br />Δλ = [−C − α̃λ] / [Σᵢ wᵢ‖∇ᵢC‖² + α̃]<br />Δpᵢ = wᵢ∇ᵢC Δλ
+              </div>
+              <p>
+                For unilateral contacts, clamp the updated multiplier to <i>λ ≥ 0</i> and apply only
+                the clamped change. Reset multipliers each substep initially; persistent
+                warm-starting requires stable contact identities. With zero compliance, the position
+                correction reduces to the rigid constraint form.
+              </p>
+              <p>
+                XPBD reduces stiffness dependence on timestep and iteration count. It does not
+                eliminate errors from too few iterations, missed contacts or large steps. Contact
+                forces can be estimated from <i>λ/h²</i> under this convention, useful for a later
+                stress overlay. Keep this upgrade after the first stable pile.
+                <a href="https://matthias-research.github.io/pages/publications/XPBD.pdf"
+                  >XPBD paper ↗</a
+                >
+              </p>
+            </div>
+          </details>
+          <details class="lesson">
+            <summary>
+              <span>07</span>
+              <div>
+                A GPU cannot compare every pair<small>Neighbour search and race-free updates</small>
+              </div>
+              <b>+</b>
+            </summary>
+            <div class="lesson-body">
+              <div class="formula">
+                All pairs = N(N − 1)/2<br />50k → 1,249,975,000 pairs &nbsp; · &nbsp; 500k →
+                124,999,750,000 pairs
+              </div>
+              <p>
+                Use a uniform spatial grid with cell width <i>ℓ ≥ 2r<sub>max</sub></i
+                >. Each grain gets a cell coordinate <i>c = floor((p − origin)/ℓ)</i>. Build sorted
+                cell ranges or a counting/prefix-sum grid, then search the grain’s cell and its 26
+                neighbours.
+              </p>
+              <p>
+                With bounded occupancy this keeps candidate work near <i>O(Nk)</i>, where
+                <i>k</i> is nearby candidates; sorting has its own cost. Dense cells can still be
+                expensive. Detect overflow rather than dropping contacts. Rebuild as positions
+                change, or prove the search margin covers solver motion.
+              </p>
+              <p>
+                GPU threads must not update each other’s particles unsafely. Start with a Jacobi
+                pass: read shared previous positions, accumulate each particle’s own correction,
+                write to a separate buffer, then swap. Dense contacts may require relaxation. Keep
+                the reference solver for comparison.
+                <a
+                  href="https://developer.nvidia.com/gpugems/gpugems3/part-v-physics-simulation/chapter-32-broad-phase-collision-detection-cuda"
+                  >NVIDIA spatial subdivision reference ↗</a
+                >
+              </p>
+            </div>
+          </details>
+          <details class="lesson">
+            <summary>
+              <span>08</span>
+              <div>
+                How long should it take to empty?<small>A flow estimate, then an experiment</small>
+              </div>
+              <b>+</b>
+            </summary>
+            <div class="lesson-body">
+              <p>
+                For dry, freely flowing grains through a circular outlet, use the empirical Beverloo
+                relation as a comparison:
+              </p>
+              <div class="formula">
+                ṁ = C<sub>B</sub> ρ<sub>bulk</sub> √g (D − kd)<sup>5/2</sup>, &nbsp; D &gt; kd<br />T
+                ≈ M/ṁ
+              </div>
+              <p>
+                <i>ṁ</i> is mass flow in kg/s, <i>D</i> is outlet diameter, <i>d</i> grain diameter,
+                and <i>C<sub>B</sub>, k</i> are fitted, dimensionless coefficients. Check the units:
+                kg/m³ × √(m/s²) × m<sup>5/2</sup> = kg/s.
+              </p>
+              <p>
+                Our vessel is not a calibrated silo. Wall slope, finite fill, friction and air
+                returning through the neck affect flow. Near a few grain diameters, arches can clog
+                the neck; the equation does not predict individual jams. If <i>D ≤ kd</i>, mark the
+                estimate outside its domain rather than taking a fractional power of a negative
+                number.
+              </p>
+              <p>
+                <b>Measure instead:</b> count downward and upward neck crossings separately over a
+                window Δt, then compute net <i>ṁ = (N↓ − N↑)m<sub>grain</sub>/Δt</i>. Fit
+                coefficients only in continuous flow. Air coupling is deferred.
+                <a href="https://www.nature.com/articles/s41598-017-00082-2"
+                  >Experimental Beverloo reference ↗</a
+                >
+              </p>
+            </div>
+          </details>
+          <details class="lesson">
+            <summary>
+              <span>09</span>
+              <div>
+                Clear glass, heavy glass, broken glass<small
+                  >Four separate controls with different jobs</small
+                >
+              </div>
+              <b>+</b>
+            </summary>
+            <div class="lesson-body">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Property</th>
+                      <th>Unit</th>
+                      <th>Changes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Material density ρ</td>
+                      <td>kg/m³</td>
+                      <td>Glass mass and inertia</td>
+                    </tr>
+                    <tr>
+                      <td>Wall thickness t</td>
+                      <td>mm in UI</td>
+                      <td>Geometry, glass mass, optical path and strength</td>
+                    </tr>
+                    <tr>
+                      <td>Absorption / refractive index</td>
+                      <td>m⁻¹ / unitless</td>
+                      <td>Tint, attenuation and bending of light</td>
+                    </tr>
+                    <tr>
+                      <td>Fracture parameters</td>
+                      <td>Pa, Pa√m</td>
+                      <td>Failure under stress and flaws</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                For appearance, Beer–Lambert attenuation is <i>I = I₀e<sup>−βL</sup></i
+                >: β is absorption per metre and L is light’s travel distance through glass. Snell’s
+                law is <i>n₁ sin θ₁ = n₂ sin θ₂</i>. The future renderer should expose optical
+                properties independently of material density.
+              </p>
+              <p>
+                Thicker walls generally reduce stress from a given internal pressure. For a thin
+                cylindrical shell, force balance gives <i>σ<sub>hoop</sub> ≈ pR/t</i>. Our curved
+                hourglass under granular contacts is a different geometry; this formula is an
+                intuition check, not a fracture predictor. Density alone does not tell us strength.
+                <a
+                  href="https://ocw.mit.edu/courses/3-91-mechanical-behavior-of-plastics-spring-2007/0be49aef0263a94601f18b28c64af705_06_pv.pdf"
+                  >MIT pressure-vessel derivation ↗</a
+                >
+              </p>
+              <p>
+                For a later educational failure model, map wall impulses to patches:
+                <i>p<sub>patch</sub> ≈ ΣJ<sub>normal</sub>/(AΔt)</i>. A real crack criterion needs
+                tensile stress and a flaw model, e.g.
+                <i>K<sub>I</sub> = Yσ√(πa<sub>crack</sub>) ≥ K<sub>IC</sub></i
+                >. <i>Y</i> is a geometry factor and <i>K<sub>IC</sub></i> fracture toughness.
+                Impacts, supports and residual stress matter.
+              </p>
+              <p>
+                <b>Fun version first:</b> a clearly labelled artistic break threshold, pre-cut
+                shards, and a sand spill. Physical fracture needs structural analysis and
+                validation; defer it until the ordinary hourglass works.
+              </p>
+            </div>
+          </details>
+          <details class="lesson">
+            <summary>
+              <span>10</span>
+              <div>
+                What exactly are we benchmarking?<small
+                  >Keep simulation, rendering and measurement separate</small
+                >
+              </div>
+              <b>+</b>
+            </summary>
+            <div class="lesson-body">
+              <p>
+                Plan a 32-byte record per grain: two aligned vec4 values for position/radius and
+                velocity/inverse mass. Two full buffers cost <i>64N</i> bytes: 3.2 MB at 50k and 32
+                MB at 500k (decimal MB). Sorting buffers, previous positions, contacts, textures and
+                render targets add to that. This is a baseline, not total GPU memory.
+              </p>
+              <p>
+                Whichever platform we select, request a GPU adapter/device, inspect granted limits
+                and handle device loss. A browser target requires a compatible WebGPU path and a
+                secure context such as localhost or HTTPS. Browser rendering support alone does not
+                guarantee compute support.
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API"
+                  >WebGPU API reference ↗</a
+                >
+              </p>
+              <p>
+                Keep particles on the GPU between simulation and drawing. Use instancing or sphere
+                impostors. The transparent glass adds overdraw and sorting problems; test clear,
+                opaque and hidden-glass views separately.
+              </p>
+              <div class="formula">
+                60 fps → 16.67 ms/frame &nbsp; · &nbsp; 30 fps → 33.33 ms/frame
+              </div>
+              <p>
+                After a warm-up, record at least 30 seconds per preset: median and p95 frame time,
+                physics steps, contact candidates, escaped grains and memory estimates. Record
+                resolution, pixel ratio, solver iterations and hardware. Use GPU timestamp queries
+                when supported; CPU submission timing is not GPU execution time. Stop increasing N
+                if stability or frame time fails.
+              </p>
+            </div>
+          </details>
+        </div>
+      </section>
+      <section class="section" id="build">
+        <div class="section-number">04 / THE BUILD PLAN</div>
+        <div class="section-body">
+          <h2>One satisfying milestone<br />at a time.</h2>
+          <p class="lead">
+            Start with the geometry and one falling grain. Earn the big particle count through
+            small, visible checks.
+          </p>
+          <ol class="roadmap">
+            <li>
+              <span class="stage-label">NOW · PLANNING</span>
+              <h3>Measure the world</h3>
+              <p>
+                This HTML plan, a static concept drawing, explained formulas and a local Git folder.
+                Agree on units, grain size, configuration meanings, language and platform.
+              </p>
+              <small
+                >Done when: capacity and mass calculations agree with independent checks.</small
+              >
+            </li>
+            <li>
+              <span class="stage-label">01 · GEOMETRY</span>
+              <h3>Build the wooden object</h3>
+              <p>
+                After selecting the implementation language and GPU framework, revolve the glass
+                profile, add an offset shell, wood caps and pillars, lighting, orbit controls and
+                rulers. Round the neck and validate inner volume.
+              </p>
+              <small
+                >Done when: a 10 mm ruler agrees with a 10 mm object; visual and collision walls
+                coincide.</small
+              >
+            </li>
+            <li>
+              <span class="stage-label">02 · PHYSICS REFERENCE</span>
+              <h3>Drop one grain, then a thousand</h3>
+              <p>
+                Implement gravity, signed-distance walls, grain contacts and friction on a small
+                reference scene. Try a plane, a bowl, a funnel, and then the vessel.
+              </p>
+              <small
+                >Done when: grains settle, conserve count and do not escape during flips or speed
+                tests.</small
+              >
+            </li>
+            <li>
+              <span class="stage-label">03 · THE FIRST PLAYABLE VERSION</span>
+              <h3>50,000 grains on the GPU</h3>
+              <p>
+                Port the verified steps to compute, build neighbour ranges, remove write races, and
+                render directly from GPU buffers. Add pause, reset, flip, presets and colours.
+              </p>
+              <small
+                >Done when: a full drain and repeated flips remain stable; measure performance on
+                the RTX 3060 Ti.</small
+              >
+            </li>
+            <li>
+              <span class="stage-label">04 · FIND THE LIMIT</span>
+              <h3>100k → 250k → 500k</h3>
+              <p>
+                Profile grid construction, contacts, wall distance and drawing separately. Offer
+                constant grain size and constant fill modes. Export reproducible benchmark results.
+              </p>
+              <small
+                >Done when: each reported particle count includes performance, physics settings and
+                stability results.</small
+              >
+            </li>
+            <li>
+              <span class="stage-label">05 · PLAY</span>
+              <h3>Give the experiment personality</h3>
+              <p>
+                Lunar gravity, slow motion, heatmaps, a satisfying flip animation and sound. Then
+                optional cracking and shards with an explicitly artistic failure rule.
+              </p>
+              <small
+                >Done when: the extra effects preserve the stable simulation and can be toggled off
+                for benchmarks.</small
+              >
+            </li>
+          </ol>
+          <aside class="note">
+            <b>Our first coding session:</b> build the measured 3D wooden frame and glass, with a
+            single falling sphere and a collision debug view. The 50k solver comes after this
+            reference behaves correctly.
+          </aside>
+        </div>
+      </section>
+      <section class="section" id="experiments">
+        <div class="section-number">05 / QUESTIONS TO PLAY WITH</div>
+        <div class="section-body">
+          <h2>Change one thing.<br />Watch what follows.</h2>
+          <div class="experiment-list">
+            <p>
+              <b>01 / Half the grain diameter.</b
+              ><span
+                >Predict mass and volume before changing the proposed value. Is your answer ½ or
+                ⅛?</span
+              >
+            </p>
+            <p>
+              <b>02 / Ten times the grains.</b
+              ><span>How much larger must every vessel dimension become? Try ∛10 ≈ 2.154.</span>
+            </p>
+            <p>
+              <b>03 / A narrow neck.</b
+              ><span
+                >When does a stream become an arch? Record D/d, friction and the number of
+                jams.</span
+              >
+            </p>
+            <p>
+              <b>04 / Twice the wall thickness.</b
+              ><span
+                >Interior volume stays constant in our design. What happens to glass mass and an
+                idealised pressure stress?</span
+              >
+            </p>
+          </div>
+        </div>
+      </section>
+      <footer>
+        <span>HOURGLASS LAB / NOTEBOOK 001</span>
+        <p>
+          HTML/CSS planning document. Values are worked examples. Simulation development begins
+          after plan review.<br />Equations and sources reviewed 25 October 2026. Read in your
+          browser; edit in Zed.
+        </p>
+        <a href="#intro">Back to the top ↑</a>
+      </footer>
+    </main>
+  </body>
+</html>
