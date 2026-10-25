@@ -12,4 +12,4 @@ The mathematics covers units and transforms, a surface of revolution and its vol
 
 The diagram is schematic. Worked-example values use the explicitly defined mathematical profile. No GPU performance has been measured yet.
 
-GitHub CLI is signed in as `hhwang1864`. Git author email is `hhwang1864@gmail.com`. No remote repository has been created or published.
+Repository: [hhwang1864/hourglass-lab](https://github.com/hhwang1864/hourglass-lab).
